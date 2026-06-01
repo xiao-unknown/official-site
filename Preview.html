@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>XIAOLP — Preview</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@500;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+    <style>
+      * { box-sizing: border-box; }
+      :root {
+        --bg: #0d0d10;
+        --panel: #141417;
+        --line: rgba(255, 255, 255, 0.1);
+        --text: #e9e9ec;
+        --muted: #84838a;
+        --blue: #cf2f39;
+        --mono: "Share Tech Mono", monospace;
+        --disp: "Oxanium", sans-serif;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at 50% 0%, #16161b, var(--bg) 60%),
+          var(--bg);
+        color: var(--text);
+        font-family: var(--mono);
+      }
+      .pv-head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding: 26px clamp(18px, 4vw, 48px) 6px;
+      }
+      .pv-head h1 {
+        margin: 0;
+        font-family: var(--disp);
+        font-weight: 800;
+        font-size: clamp(1.1rem, 2.4vw, 1.6rem);
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+      }
+      .pv-head p { margin: 0; font-size: 0.78rem; letter-spacing: 0.14em; color: var(--muted); text-transform: uppercase; }
+      .pv-head a { color: var(--blue); text-decoration: none; font-size: 0.78rem; letter-spacing: 0.14em; border-bottom: 1px solid rgba(198,44,54,0.5); padding-bottom: 2px; }
+
+      .stage {
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        gap: clamp(28px, 4vw, 56px);
+        flex-wrap: wrap;
+        padding: clamp(28px, 5vw, 64px) clamp(16px, 4vw, 48px) 80px;
+      }
+      .frame-label {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        margin: 0 0 14px;
+        font-size: 0.74rem;
+        letter-spacing: 0.16em;
+        color: var(--muted);
+        text-transform: uppercase;
+      }
+      .frame-label::before { content: ""; width: 7px; height: 7px; background: var(--blue); box-shadow: 0 0 9px var(--blue); }
+
+      /* desktop browser chrome */
+      .desktop { flex: 0 1 760px; min-width: 300px; }
+      .browser {
+        border: 1px solid var(--line);
+        background: var(--panel);
+        box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
+        overflow: hidden;
+      }
+      .browser__bar {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 11px 15px;
+        border-bottom: 1px solid var(--line);
+        background: #101013;
+      }
+      .dots { display: flex; gap: 7px; }
+      .dots i { width: 11px; height: 11px; border-radius: 50%; background: #2c2c31; display: block; }
+      .browser__url {
+        flex: 1;
+        font-size: 0.72rem;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+        background: #1a1a1f;
+        border: 1px solid var(--line);
+        padding: 6px 12px;
+        text-align: center;
+      }
+      .browser__view { position: relative; width: 100%; aspect-ratio: 1440 / 900; overflow: hidden; background: #060507; }
+      .browser__view iframe {
+        position: absolute;
+        top: 0; left: 0;
+        width: 1440px;
+        height: 900px;
+        border: 0;
+        transform-origin: top left;
+      }
+
+      /* mobile device */
+      .mobile { flex: 0 0 auto; }
+      .phone {
+        width: 344px;
+        max-width: calc(100vw - 36px);
+        aspect-ratio: 344 / 720;
+        padding: 12px;
+        border-radius: 40px;
+        background: #161619;
+        border: 1px solid var(--line);
+        box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
+        position: relative;
+      }
+      .phone::before {
+        content: "";
+        position: absolute;
+        top: 16px; left: 50%;
+        transform: translateX(-50%);
+        width: 96px; height: 18px;
+        background: #060507;
+        border-radius: 0 0 14px 14px;
+        z-index: 2;
+      }
+      .phone__screen { width: 100%; height: 100%; border-radius: 28px; overflow: hidden; background: #060507; }
+      .phone__screen iframe { width: 100%; height: 100%; border: 0; }
+    </style>
+  </head>
+  <body>
+    <header class="pv-head">
+      <h1>XIAO / Preview</h1>
+      <p>Desktop &amp; Mobile</p>
+      <a href="index.html">Open full site →</a>
+    </header>
+
+    <div class="stage">
+      <div class="desktop">
+        <p class="frame-label">Desktop — 1440px</p>
+        <div class="browser">
+          <div class="browser__bar">
+            <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span class="browser__url">xiao.official / index</span>
+          </div>
+          <div class="browser__view" id="dview">
+            <iframe id="dframe" src="index.html" title="Desktop preview" scrolling="no"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <div class="mobile">
+        <p class="frame-label">Mobile — 390px</p>
+        <div class="phone">
+          <div class="phone__screen">
+            <iframe src="index.html" title="Mobile preview"></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // scale the 1440px desktop iframe to fit its container, and let it auto-cycle scroll
+      function fitDesktop() {
+        const view = document.getElementById("dview");
+        const frame = document.getElementById("dframe");
+        const scale = view.clientWidth / 1440;
+        frame.style.transform = `scale(${scale})`;
+        view.style.aspectRatio = "1440 / 900";
+        frame.style.height = view.clientHeight / scale + "px";
+      }
+      window.addEventListener("resize", fitDesktop);
+      window.addEventListener("load", fitDesktop);
+      fitDesktop();
+    </script>
+  </body>
+</html>
