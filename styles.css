@@ -419,7 +419,7 @@ main { position: relative; z-index: 5; }
   line-height: 1.12;
   letter-spacing: 0.01em;
 }
-.profile__body { margin: 0; max-width: 56ch; color: var(--muted); line-height: 2.1; font-size: clamp(0.70rem, 1.08vw, 1.12rem); }
+.profile__body { margin: 0; max-width: 56ch; color: rgba(237, 238, 241, 0.78); font-family: "fot-cezanne-pron", var(--font-body); font-feature-settings: "palt"; line-height: 2.1; font-size: clamp(0.70rem, 1.08vw, 1.12rem); }
 .profile__tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
 .profile__tags span {
   font-family: var(--font-mono);
