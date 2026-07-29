@@ -205,6 +205,10 @@
   border: 1px solid var(--line-soft);
   background: rgba(6, 5, 7, 0.5);
 }
+/* 横長フライヤーは1カラムにして横幅いっぱいに見せ、本文をその下に置く */
+.live-embed--wide { grid-template-columns: minmax(0, 1fr); }
+.live-embed--wide .live-embed__img { max-width: 100%; }
+
 /* フライヤーは縦横比がまちまちなので切り抜かずに全体を見せる */
 .live-embed__img {
   width: 100%;

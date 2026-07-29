@@ -121,6 +121,15 @@
         img.src = event.tweetEmbed.imageUrl;
         img.alt = "告知フライヤー";
         img.loading = "lazy";
+
+        // 横長フライヤーは横幅いっぱいに出し、本文をその下に置く
+        const applyOrientation = (w, h) => {
+          if (!w || !h) return;
+          embed.classList.toggle("live-embed--wide", w / h >= 1.15);
+        };
+        applyOrientation(event.tweetEmbed.imageWidth, event.tweetEmbed.imageHeight);
+        img.addEventListener("load", () => applyOrientation(img.naturalWidth, img.naturalHeight));
+
         embed.appendChild(img);
       }
       const textWrap = el("div");

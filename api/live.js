@@ -130,7 +130,12 @@ async function fetchTweetEmbed(tweetUrl) {
     const photo = tweet.media && Array.isArray(tweet.media.photos) ? tweet.media.photos[0] : null;
     const imageUrl = photo && typeof photo.url === "string" && photo.url.startsWith(IMAGE_HOST_PREFIX) ? photo.url : "";
 
-    return { text: String(tweet.text || ""), imageUrl, url: String(tweet.url || tweetUrl) };
+    const embed = { text: String(tweet.text || ""), imageUrl, url: String(tweet.url || tweetUrl) };
+    if (imageUrl && Number.isFinite(photo.width) && Number.isFinite(photo.height)) {
+      embed.imageWidth = photo.width;
+      embed.imageHeight = photo.height;
+    }
+    return embed;
   } catch (error) {
     return null;
   } finally {

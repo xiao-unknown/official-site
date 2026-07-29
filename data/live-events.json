@@ -16,7 +16,9 @@
       "tweetEmbed": {
         "text": "NightFall #NF0810\n\n8/10(月) 246 LIVEHOUSE GABU\n\n両部浴衣コンセプト\n\n6/4(木)A席抽選販売(tiget)\n各部19~22時まで受付 \n\n6/5(金)B席先着販売(tiget)\n※先着当日払い\n1部19:00~2部19:15~\n\n発売リンク・キービジュアル後日公開👘 🎆\n\n公式(@NightFall__live)",
         "imageUrl": "https://pbs.twimg.com/media/HIWSB6baoAA2P7m.jpg?name=orig",
-        "url": "https://x.com/NightFall__live/status/2055211587137323305"
+        "url": "https://x.com/NightFall__live/status/2055211587137323305",
+        "imageWidth": 4093,
+        "imageHeight": 2894
       }
     },
     {
@@ -33,17 +35,31 @@
       "tweetEmbed": {
         "text": "Euphoria #Euph0906\n\n9/6(日) ZEAL THEATER TOKYO\n\n8/12(水)A席チケット抽選販売\n各部19~22時まで受付\nhttps://tiget.net/events/510330\n\n8/13(木)B席チケット先着販売\n1部 19:00~\nhttps://tiget.net/events/510331\n\n2部 19:15~\nhttps://tiget.net/events/510334\n\nA席連番2枚,B席連番4枚まで\n\n公式(@Euphoria__live)",
         "imageUrl": "https://pbs.twimg.com/media/HOYGa_IbEAAPhuA.jpg?name=orig",
-        "url": "https://x.com/Euphoria__live/status/2082390679385518466"
+        "url": "https://x.com/Euphoria__live/status/2082390679385518466",
+        "imageWidth": 4093,
+        "imageHeight": 2894
       }
     },
     {
-      "id": "2026-10-04-都内某所-3",
+      "id": "2026-10-04-都内某所-未定-3",
       "published": true,
       "date": "2026-10-04",
       "weekday": "Sun",
       "venue": "都内某所",
-      "title": "",
-      "detail": "詳細決まり次第お知らせします",
+      "title": "未定",
+      "detail": "詳細が決まり次第お知らせします。",
+      "ticketUrl": "",
+      "tweetUrl": "",
+      "note": ""
+    },
+    {
+      "id": "2027-01-03-都内某所-未定-4",
+      "published": true,
+      "date": "2027-01-03",
+      "weekday": "Sun",
+      "venue": "都内某所",
+      "title": "未定",
+      "detail": "詳細が決まり次第お知らせします。",
       "ticketUrl": "",
       "tweetUrl": "",
       "note": ""
