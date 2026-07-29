@@ -3,16 +3,23 @@
   "source": "google-sheet",
   "events": [
     {
-      "id": "2026-05-09-Night Fall-1-5",
+      "id": "2026-05-09-ZEAL THEATER TOKYO-Night Fall-1-5",
       "published": true,
       "date": "2026-05-09",
       "weekday": "Sat",
-      "venue": "",
+      "venue": "ZEAL THEATER TOKYO",
       "title": "Night Fall",
-      "detail": "",
+      "detail": "両部inst",
       "ticketUrl": "",
-      "tweetUrl": "",
-      "note": ""
+      "tweetUrl": "https://x.com/nightfall__live/status/2041441042470437025?s=46",
+      "note": "",
+      "tweetEmbed": {
+        "text": "NightFall -Magic Academy- #NF0509\n\n5/9(土) ZEAL THEATER TOKYO\n\n4/13(月)A席抽選販売 各部19~22時まで受付\nhttps://tiget.net/events/480323\n\n4/14(火)B席先着販売 1部 19:00~\nhttps://tiget.net/events/480326\n\n2部 19:15~\nhttps://tiget.net/events/480327\n\nA席連番2枚,B席連番4枚まで\n\n公式(@NightFall__live)",
+        "imageUrl": "https://pbs.twimg.com/media/HFSnzqOaUAAu8JL.jpg?name=orig",
+        "url": "https://x.com/NightFall__live/status/2041441042470437025",
+        "imageWidth": 2048,
+        "imageHeight": 1230
+      }
     },
     {
       "id": "2026-08-10-246 GABU LIVE HOUSE大阪-Night Fall-1-1",
