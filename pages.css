@@ -95,6 +95,9 @@
 }
 
 /* ---------- Live list ---------- */
+
+/* Liveのように1行が短いリストは、PCで幅いっぱいに広げると間延びするので絞る */
+.wrap--narrow { width: min(940px, calc(100% - clamp(32px, 8vw, 120px))); }
 .live-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
 
 .live-item {
@@ -194,8 +197,8 @@
 /* 告知ツイート埋め込み（Sheetsの告知ツイートURLから生成） */
 .live-embed {
   display: grid;
-  grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
-  gap: clamp(14px, 2vw, 22px);
+  grid-template-columns: minmax(0, clamp(220px, 36%, 360px)) minmax(0, 1fr);
+  gap: clamp(14px, 2.4vw, 28px);
   align-items: start;
   margin: 0 clamp(18px, 2.6vw, 30px) clamp(18px, 2.4vw, 26px);
   padding: 16px;
@@ -211,8 +214,8 @@
 }
 .live-embed__text {
   margin: 0;
-  font-size: clamp(0.76rem, 0.92vw, 0.88rem);
-  line-height: 1.95;
+  font-size: clamp(0.78rem, 0.98vw, 0.95rem);
+  line-height: 1.9;
   color: rgba(237, 238, 241, 0.7);
   white-space: pre-wrap;
 }
