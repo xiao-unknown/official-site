@@ -24,6 +24,7 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="pages.css" />
   </head>
   <body>
     <!-- background photo + ambient texture -->
@@ -80,9 +81,10 @@
       </div>
       <nav class="sidebar__nav">
         <a href="#top" data-nav><span class="sidebar__idx">00</span>Home</a>
-        <a href="#profile-h" data-nav><span class="sidebar__idx">01</span>Profile</a>
-        <a href="#movie-h" data-nav><span class="sidebar__idx">02</span>Movie</a>
-        <a href="#contact-h" data-nav><span class="sidebar__idx">03</span>Contact</a>
+        <a href="profile.html" data-nav><span class="sidebar__idx">01</span>Profile</a>
+        <a href="movie.html" data-nav><span class="sidebar__idx">02</span>Movie</a>
+        <a href="live.html" data-nav><span class="sidebar__idx">03</span>Live</a>
+        <a href="contact.html" data-nav><span class="sidebar__idx">04</span>Contact</a>
       </nav>
       <div class="sidebar__foot">
         <span class="sidebar__label">Official Account</span>
@@ -166,11 +168,27 @@
         </div>
       </section>
 
+      <!-- live -->
+      <section class="section section--line" aria-labelledby="live-h">
+        <div class="wrap">
+          <div class="list-head">
+            <div class="sec-head" style="margin: 0">
+              <span class="idx">[ 03 ]</span>
+              <h2 id="live-h">Live</h2>
+            </div>
+            <a class="kicker" href="live.html" style="margin: 0">View All Live</a>
+          </div>
+          <ul class="live-list" data-live-list="upcoming" data-live-limit="2" aria-label="出演予定のライブ">
+            <li><div class="live-empty">Loading…</div></li>
+          </ul>
+        </div>
+      </section>
+
       <!-- contact -->
       <section class="section section--line" aria-labelledby="contact-h">
         <div class="wrap">
           <div class="sec-head">
-            <span class="idx">[ 03 ]</span>
+            <span class="idx">[ 04 ]</span>
             <h2 id="contact-h">Contact</h2>
           </div>
           <div class="contact">
@@ -186,6 +204,7 @@
     </main>
 
     <script src="script.js"></script>
+    <script src="live.js"></script>
   </body>
 </html>
 

@@ -1,0 +1,40 @@
+name: Sync Live Info from Google Sheet
+
+# 相手がスプレッドシートを更新 → 定期的にこのワークフローがCSVを取得し、
+# data/live-events.json を書き換えてコミットする。
+# コミットが入るとVercelのGit連携が自動でデプロイする。
+on:
+  schedule:
+    # 30分おき（GitHubのcronは混雑時に数分〜十数分遅れることがある）
+    - cron: "*/30 * * * *"
+  workflow_dispatch: # 手動実行（すぐ反映したいとき）
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-live-info
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch sheet and build data/live-events.json
+        env:
+          SHEET_CSV_URL: "https://docs.google.com/spreadsheets/d/1ftAVeUo5rdaviGKhgMvTzTWXs4N-O7fJ2v-spjt6OJs/export?format=csv&gid=1891485304"
+        run: node scripts/build-live-events.mjs
+
+      - name: Commit if changed
+        run: |
+          if git diff --quiet -- data/live-events.json; then
+            echo "変更なし。コミットしません。"
+            exit 0
+          fi
+          git config user.name "live-info-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/live-events.json
+          git commit -m "chore: sync live info from spreadsheet"
+          git push

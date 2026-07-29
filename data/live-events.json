@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "source": "google-sheet",
+  "events": [
+    {
+      "id": "2026-08-16-新宿SAMPLE HALL-SAMPLE LIVE vol.01-1",
+      "published": true,
+      "date": "2026-08-16",
+      "weekday": "Sun",
+      "venue": "新宿SAMPLE HALL",
+      "title": "SAMPLE LIVE vol.01",
+      "detail": "対バン / 出演17:40〜",
+      "ticketUrl": "https://example.com/ticket/0816",
+      "tweetUrl": "",
+      "note": "←この行は記入例です。上書きして使ってください"
+    },
+    {
+      "id": "2026-09-13-渋谷SAMPLE STUDIO-SAMPLE SESSION-2",
+      "published": true,
+      "date": "2026-09-13",
+      "weekday": "Sun",
+      "venue": "渋谷SAMPLE STUDIO",
+      "title": "SAMPLE SESSION",
+      "detail": "ワンマン / 開場18:00 開演18:30",
+      "ticketUrl": "",
+      "tweetUrl": "",
+      "note": ""
+    }
+  ]
+}

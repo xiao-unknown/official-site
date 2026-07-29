@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Contact | Xiao</title>
+    <meta name="description" content="Xiao へのお問い合わせ・ご依頼はこちらから。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Xiao Official" />
+    <meta property="og:title" content="Contact | Xiao" />
+    <meta property="og:description" content="Xiao へのお問い合わせ・ご依頼はこちらから。" />
+    <meta property="og:url" content="https://xiao-official.com/contact.html" />
+    <meta property="og:image" content="https://xiao-official.com/images/XiaoOGP.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Contact | Xiao" />
+    <meta name="twitter:description" content="Xiao へのお問い合わせ・ご依頼はこちらから。" />
+    <meta name="twitter:image" content="https://xiao-official.com/images/XiaoOGP.png" />
+    <link rel="canonical" href="https://xiao-official.com/contact.html" />
+    <link rel="icon" href="assets/profile.jpg" />
+    <link rel="apple-touch-icon" href="assets/profile.jpg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800&family=Oxanium:wght@500;700;800&family=Share+Tech+Mono&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="pages.css" />
+  </head>
+  <body>
+    <!-- background photo + ambient texture -->
+    <div class="bg-photo" aria-hidden="true"></div>
+    <canvas class="fx fx--static" id="staticCanvas" aria-hidden="true"></canvas>
+    <div class="fx fx--grain" aria-hidden="true"></div>
+    <div class="fx fx--scan" aria-hidden="true"></div>
+    <div class="fx fx--vignette" aria-hidden="true"></div>
+
+    <!-- header -->
+    <header class="site-header">
+      <button class="menu-button" id="menuButton" type="button" aria-label="メニュー" aria-controls="sidebar" aria-expanded="false">
+        <span class="bars" aria-hidden="true"><i></i><i></i></span>
+        <span>Menu</span>
+      </button>
+      <nav class="official-links" aria-label="SNSリンク">
+        <span class="label">Official</span>
+        <a href="https://x.com/xiao__0x" aria-label="X" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.8 10.4 21.1 2h-1.8l-6.3 7.2L8 2H2.2l7.7 11.2L2.2 22h1.8l6.7-7.7 5.4 7.7h5.8l-8.1-11.6Zm-2.4 2.7-.8-1.1L4.4 3.3h2.8l4.9 7 .8 1.1 6.7 9.4h-2.8l-5.4-7.7Z"/></svg>
+        </a>
+        <a href="https://www.instagram.com/xia__o0/" aria-label="Instagram" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.4 2h9.2A5.4 5.4 0 0 1 22 7.4v9.2a5.4 5.4 0 0 1-5.4 5.4H7.4A5.4 5.4 0 0 1 2 16.6V7.4A5.4 5.4 0 0 1 7.4 2Zm0 2A3.4 3.4 0 0 0 4 7.4v9.2A3.4 3.4 0 0 0 7.4 20h9.2a3.4 3.4 0 0 0 3.4-3.4V7.4A3.4 3.4 0 0 0 16.6 4H7.4Zm4.6 3.4A4.6 4.6 0 1 1 7.4 12 4.6 4.6 0 0 1 12 7.4Zm0 2A2.6 2.6 0 1 0 14.6 12 2.6 2.6 0 0 0 12 9.4Zm5-2.8a1.1 1.1 0 1 1-1.1 1.1A1.1 1.1 0 0 1 17 6.6Z"/></svg>
+        </a>
+        <a href="https://youtube.com/@xiao_bzx" aria-label="YouTube" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.6 7.2a3 3 0 0 0-2.1-2.1C17.6 4.6 12 4.6 12 4.6s-5.6 0-7.5.5a3 3 0 0 0-2.1 2.1A31.2 31.2 0 0 0 2 12a31.2 31.2 0 0 0 .4 4.8 3 3 0 0 0 2.1 2.1c1.9.5 7.5.5 7.5.5s5.6 0 7.5-.5a3 3 0 0 0 2.1-2.1A31.2 31.2 0 0 0 22 12a31.2 31.2 0 0 0-.4-4.8ZM10 15.3V8.7l5.8 3.3L10 15.3Z"/></svg>
+        </a>
+        <a href="https://soundcloud.com/user-546744269" aria-label="SoundCloud" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.2 8.7c.4-.2.8-.3 1.3-.3 1.6 0 3 1.1 3.4 2.7.5-.2 1-.3 1.5-.3 2 0 3.6 1.6 3.6 3.6S17.4 18 15.4 18H9.2V8.7Zm-1.5.9h.8V18h-.8V9.6Zm-1.4 1.1h.8V18h-.8v-7.3Zm-1.4 1.2h.8V18h-.8v-6.1Zm-1.4 1.5h.8V18h-.8v-4.6Zm-1.4 1.2h.8V18h-.8v-3.4Z"/></svg>
+        </a>
+        <a class="tc" href="https://twitcasting.tv/_01xxxo" aria-label="TwitCasting" target="_blank" rel="noopener">
+          <span class="tc-icon" aria-hidden="true"></span>
+        </a>
+      </nav>
+    </header>
+
+    <!-- slide-in sidebar -->
+    <div class="nav-backdrop" id="navBackdrop" aria-hidden="true"></div>
+    <aside class="sidebar" id="sidebar" aria-label="メニュー" aria-hidden="true">
+      <div class="sidebar__top">
+        <span class="sidebar__brand">XI<span class="hero__accent">A</span>O</span>
+        <button class="sidebar__close" id="navClose" type="button" aria-label="閉じる"><span>Close</span><i aria-hidden="true"></i></button>
+      </div>
+      <nav class="sidebar__nav">
+        <a href="index.html" data-nav><span class="sidebar__idx">00</span>Home</a>
+        <a href="profile.html" data-nav><span class="sidebar__idx">01</span>Profile</a>
+        <a href="movie.html" data-nav><span class="sidebar__idx">02</span>Movie</a>
+        <a href="live.html" data-nav><span class="sidebar__idx">03</span>Live</a>
+        <a href="contact.html" data-nav aria-current="page"><span class="sidebar__idx">04</span>Contact</a>
+      </nav>
+      <div class="sidebar__foot">
+        <span class="sidebar__label">Official Account</span>
+        <div class="sidebar__sns">
+          <a href="https://x.com/xiao__0x" aria-label="X" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.8 10.4 21.1 2h-1.8l-6.3 7.2L8 2H2.2l7.7 11.2L2.2 22h1.8l6.7-7.7 5.4 7.7h5.8l-8.1-11.6Zm-2.4 2.7-.8-1.1L4.4 3.3h2.8l4.9 7 .8 1.1 6.7 9.4h-2.8l-5.4-7.7Z"/></svg></a>
+          <a href="https://www.instagram.com/xia__o0/" aria-label="Instagram" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.4 2h9.2A5.4 5.4 0 0 1 22 7.4v9.2a5.4 5.4 0 0 1-5.4 5.4H7.4A5.4 5.4 0 0 1 2 16.6V7.4A5.4 5.4 0 0 1 7.4 2Zm0 2A3.4 3.4 0 0 0 4 7.4v9.2A3.4 3.4 0 0 0 7.4 20h9.2a3.4 3.4 0 0 0 3.4-3.4V7.4A3.4 3.4 0 0 0 16.6 4H7.4Zm4.6 3.4A4.6 4.6 0 1 1 7.4 12 4.6 4.6 0 0 1 12 7.4Zm0 2A2.6 2.6 0 1 0 14.6 12 2.6 2.6 0 0 0 12 9.4Zm5-2.8a1.1 1.1 0 1 1-1.1 1.1A1.1 1.1 0 0 1 17 6.6Z"/></svg></a>
+          <a href="https://youtube.com/@xiao_bzx" aria-label="YouTube" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.6 7.2a3 3 0 0 0-2.1-2.1C17.6 4.6 12 4.6 12 4.6s-5.6 0-7.5.5a3 3 0 0 0-2.1 2.1A31.2 31.2 0 0 0 2 12a31.2 31.2 0 0 0 .4 4.8 3 3 0 0 0 2.1 2.1c1.9.5 7.5.5 7.5.5s5.6 0 7.5-.5a3 3 0 0 0 2.1-2.1A31.2 31.2 0 0 0 22 12a31.2 31.2 0 0 0-.4-4.8ZM10 15.3V8.7l5.8 3.3L10 15.3Z"/></svg></a>
+          <a href="https://soundcloud.com/user-546744269" aria-label="SoundCloud" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.2 8.7c.4-.2.8-.3 1.3-.3 1.6 0 3 1.1 3.4 2.7.5-.2 1-.3 1.5-.3 2 0 3.6 1.6 3.6 3.6S17.4 18 15.4 18H9.2V8.7Zm-1.5.9h.8V18h-.8V9.6Zm-1.4 1.1h.8V18h-.8v-7.3Zm-1.4 1.2h.8V18h-.8v-6.1Zm-1.4 1.5h.8V18h-.8v-4.6Zm-1.4 1.2h.8V18h-.8v-3.4Z"/></svg></a>
+          <a class="tc" href="https://twitcasting.tv/_01xxxo" aria-label="TwitCasting" target="_blank" rel="noopener"><span class="tc-icon" aria-hidden="true"></span></a>
+        </div>
+      </div>
+    </aside>
+
+    <main id="top">
+      <!-- page hero -->
+      <section class="page-hero wrap" aria-labelledby="page-title">
+        <p class="crumbs"><a href="index.html">Home</a><span>/</span><span>Contact</span></p>
+        <p class="page-hero__eyebrow">Get in Touch</p>
+        <h1 class="page-hero__title" id="page-title">
+          <span class="ghost">XIAO</span>CONTACT
+        </h1>
+        <p class="page-hero__sub">Inquiry &nbsp;/&nbsp; Offer</p>
+      </section>
+
+      <!-- mail -->
+      <section class="section section--line" aria-labelledby="mail-h">
+        <div class="wrap">
+          <div class="list-head">
+            <div class="sec-head" style="margin: 0">
+              <span class="idx">[ 01 ]</span>
+              <h2 id="mail-h">Mail</h2>
+            </div>
+          </div>
+
+          <p class="contact-lead">ライブ出演・楽曲提供・タイアップなどのご依頼、その他お問い合わせはこちらのメールアドレスへお願いいたします。内容によっては返信までお時間をいただく場合があります。</p>
+
+          <div class="contact-mail-box">
+            <span class="label">Mail Address</span>
+            <a class="contact__mail" href="mailto:nyaxiao550@gmail.com">nyaxiao550@gmail.com</a>
+          </div>
+
+          <p class="contact-note">
+            ご依頼の際は「お名前 / ご所属 / ご用件 / 希望スケジュール」を記載いただけますとスムーズです。<br>
+            SNSのDMでもご連絡いただけますが、確認が遅れる場合があります。
+          </p>
+        </div>
+      </section>
+
+      <!-- sns -->
+      <section class="section section--line" aria-labelledby="sns-h">
+        <div class="wrap">
+          <div class="list-head">
+            <div class="sec-head" style="margin: 0">
+              <span class="idx">[ 02 ]</span>
+              <h2 id="sns-h">Social</h2>
+            </div>
+          </div>
+
+          <div class="contact">
+            <div class="contact__sns">
+              <a href="https://x.com/xiao__0x" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.8 10.4 21.1 2h-1.8l-6.3 7.2L8 2H2.2l7.7 11.2L2.2 22h1.8l6.7-7.7 5.4 7.7h5.8l-8.1-11.6Zm-2.4 2.7-.8-1.1L4.4 3.3h2.8l4.9 7 .8 1.1 6.7 9.4h-2.8l-5.4-7.7Z"/></svg>X</a>
+              <a href="https://www.instagram.com/xia__o0/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.4 2h9.2A5.4 5.4 0 0 1 22 7.4v9.2a5.4 5.4 0 0 1-5.4 5.4H7.4A5.4 5.4 0 0 1 2 16.6V7.4A5.4 5.4 0 0 1 7.4 2Zm0 2A3.4 3.4 0 0 0 4 7.4v9.2A3.4 3.4 0 0 0 7.4 20h9.2a3.4 3.4 0 0 0 3.4-3.4V7.4A3.4 3.4 0 0 0 16.6 4H7.4Zm4.6 3.4A4.6 4.6 0 1 1 7.4 12 4.6 4.6 0 0 1 12 7.4Zm0 2A2.6 2.6 0 1 0 14.6 12 2.6 2.6 0 0 0 12 9.4Zm5-2.8a1.1 1.1 0 1 1-1.1 1.1A1.1 1.1 0 0 1 17 6.6Z"/></svg>Instagram</a>
+              <a href="https://youtube.com/@xiao_bzx" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.6 7.2a3 3 0 0 0-2.1-2.1C17.6 4.6 12 4.6 12 4.6s-5.6 0-7.5.5a3 3 0 0 0-2.1 2.1A31.2 31.2 0 0 0 2 12a31.2 31.2 0 0 0 .4 4.8 3 3 0 0 0 2.1 2.1c1.9.5 7.5.5 7.5.5s5.6 0 7.5-.5a3 3 0 0 0 2.1-2.1A31.2 31.2 0 0 0 22 12a31.2 31.2 0 0 0-.4-4.8ZM10 15.3V8.7l5.8 3.3L10 15.3Z"/></svg>YouTube</a>
+              <a href="https://soundcloud.com/user-546744269" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.2 8.7c.4-.2.8-.3 1.3-.3 1.6 0 3 1.1 3.4 2.7.5-.2 1-.3 1.5-.3 2 0 3.6 1.6 3.6 3.6S17.4 18 15.4 18H9.2V8.7Zm-1.5.9h.8V18h-.8V9.6Zm-1.4 1.1h.8V18h-.8v-7.3Zm-1.4 1.2h.8V18h-.8v-6.1Zm-1.4 1.5h.8V18h-.8v-4.6Zm-1.4 1.2h.8V18h-.8v-3.4Z"/></svg>SoundCloud</a>
+              <a href="https://twitcasting.tv/_01xxxo" target="_blank" rel="noopener"><span class="tc-icon" aria-hidden="true"></span>TwitCasting</a>
+            </div>
+          </div>
+
+          <div class="page-back">
+            <a href="index.html">← Back to Top</a>
+          </div>
+        </div>
+      </section>
+
+      <footer class="site-foot wrap">
+        <span>© 2026 XIAO OFFICIAL WEBSITE</span>
+        <span>ARTIST / TOKYO</span>
+      </footer>
+    </main>
+
+    <script src="common.js"></script>
+  </body>
+</html>
