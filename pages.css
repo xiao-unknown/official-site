@@ -96,8 +96,6 @@
 
 /* ---------- Live list ---------- */
 
-/* Liveのように1行が短いリストは、PCで幅いっぱいに広げると間延びするので絞る */
-.wrap--narrow { width: min(940px, calc(100% - clamp(32px, 8vw, 120px))); }
 .live-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
 
 .live-item {
