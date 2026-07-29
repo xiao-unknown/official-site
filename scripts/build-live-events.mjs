@@ -89,6 +89,42 @@ function resolveWeekday(input, date) {
   return Number.isNaN(d.getTime()) ? "" : WEEKDAYS[d.getUTCDay()];
 }
 
+/* ---------- 告知ツイートからフライヤー画像と本文を取得する ---------- */
+
+const FX_HOST = "https://api.fxtwitter.com";
+const TWEET_URL_RE = /^https?:\/\/(?:www\.)?(?:twitter\.com|x\.com)\/([A-Za-z0-9_]{1,15})\/status\/(\d+)/i;
+const IMAGE_HOST_PREFIX = "https://pbs.twimg.com/";
+const FETCH_TIMEOUT_MS = 8000;
+
+async function fetchTweetEmbed(tweetUrl) {
+  const match = TWEET_URL_RE.exec(String(tweetUrl || "").trim());
+  if (!match) return null;
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+  try {
+    const res = await fetch(`${FX_HOST}/${match[1]}/status/${match[2]}`, { signal: controller.signal });
+    if (!res.ok) return null;
+
+    const data = await res.json();
+    const tweet = data && data.tweet;
+    if (!tweet) return null;
+
+    const photo = tweet.media && Array.isArray(tweet.media.photos) ? tweet.media.photos[0] : null;
+    const imageUrl = photo && typeof photo.url === "string" && photo.url.startsWith(IMAGE_HOST_PREFIX) ? photo.url : "";
+
+    return {
+      text: String(tweet.text || ""),
+      imageUrl,
+      url: String(tweet.url || tweetUrl),
+    };
+  } catch {
+    return null; // 取得できなければ埋め込みなしで続行する
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 const response = await fetch(CSV_URL, { redirect: "follow" });
 if (!response.ok) {
   console.error(`シートの取得に失敗しました: HTTP ${response.status}`);
@@ -126,10 +162,23 @@ const events = rows.slice(1).map((row, index) => {
   };
 }).filter((event) => event.published === true);
 
+// 告知ツイートがある公演にフライヤー画像・本文を付ける
+const enriched = await Promise.all(
+  events.map(async (event) => {
+    if (!event.tweetUrl) return event;
+    const tweetEmbed = await fetchTweetEmbed(event.tweetUrl);
+    if (!tweetEmbed) {
+      console.warn(`ツイートを取得できませんでした: ${event.tweetUrl}`);
+      return event;
+    }
+    return { ...event, tweetEmbed };
+  })
+);
+
 const payload = {
   schemaVersion: 1,
   source: "google-sheet",
-  events,
+  events: enriched,
 };
 
 const next = JSON.stringify(payload, null, 2) + "\n";
@@ -141,9 +190,11 @@ try {
   /* 初回は存在しない */
 }
 
+const embedCount = enriched.filter((e) => e.tweetEmbed).length;
+
 if (current === next) {
-  console.log(`変更なし（${events.length}件）`);
+  console.log(`変更なし（${events.length}件 / 埋め込み${embedCount}件）`);
 } else {
   await writeFile(OUT_PATH, next, "utf8");
-  console.log(`data/live-events.json を更新しました（${events.length}件）`);
+  console.log(`data/live-events.json を更新しました（${events.length}件 / 埋め込み${embedCount}件）`);
 }

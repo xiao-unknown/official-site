@@ -194,7 +194,7 @@
 /* 告知ツイート埋め込み（Sheetsの告知ツイートURLから生成） */
 .live-embed {
   display: grid;
-  grid-template-columns: minmax(0, 210px) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 260px) minmax(0, 1fr);
   gap: clamp(14px, 2vw, 22px);
   align-items: start;
   margin: 0 clamp(18px, 2.6vw, 30px) clamp(18px, 2.4vw, 26px);
@@ -202,10 +202,10 @@
   border: 1px solid var(--line-soft);
   background: rgba(6, 5, 7, 0.5);
 }
+/* フライヤーは縦横比がまちまちなので切り抜かずに全体を見せる */
 .live-embed__img {
   width: 100%;
-  aspect-ratio: 4/3;
-  object-fit: cover;
+  height: auto;
   border: 1px solid var(--line-soft);
   filter: saturate(0.85) contrast(1.05);
 }

@@ -106,6 +106,48 @@ function toEvent(row, headers, index) {
   };
 }
 
+/* ---------- 告知ツイートからフライヤー画像と本文を取得する ---------- */
+
+const FX_HOST = "https://api.fxtwitter.com";
+const TWEET_URL_RE = /^https?:\/\/(?:www\.)?(?:twitter\.com|x\.com)\/([A-Za-z0-9_]{1,15})\/status\/(\d+)/i;
+const IMAGE_HOST_PREFIX = "https://pbs.twimg.com/";
+const FETCH_TIMEOUT_MS = 6000;
+
+async function fetchTweetEmbed(tweetUrl) {
+  const match = TWEET_URL_RE.exec(String(tweetUrl || "").trim());
+  if (!match) return null;
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+  try {
+    const res = await fetch(`${FX_HOST}/${match[1]}/status/${match[2]}`, { signal: controller.signal });
+    if (!res.ok) return null;
+
+    const data = await res.json();
+    const tweet = data && data.tweet;
+    if (!tweet) return null;
+
+    const photo = tweet.media && Array.isArray(tweet.media.photos) ? tweet.media.photos[0] : null;
+    const imageUrl = photo && typeof photo.url === "string" && photo.url.startsWith(IMAGE_HOST_PREFIX) ? photo.url : "";
+
+    return { text: String(tweet.text || ""), imageUrl, url: String(tweet.url || tweetUrl) };
+  } catch (error) {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function enrichEvents(events) {
+  return Promise.all(
+    events.map(async (event) => {
+      if (!event.tweetUrl || event.tweetEmbed) return event;
+      const tweetEmbed = await fetchTweetEmbed(event.tweetUrl);
+      return tweetEmbed ? { ...event, tweetEmbed } : event;
+    })
+  );
+}
+
 function publicEvents(events) {
   return Array.isArray(events) ? events.filter((event) => event.published === true) : [];
 }
@@ -148,7 +190,7 @@ module.exports = async function handler(request, response) {
       .map((row, index) => toEvent(row, headers, index + 1))
       .filter((event) => event.published === true);
 
-    sendJson(response, { schemaVersion: 1, source: "google-sheet", events });
+    sendJson(response, { schemaVersion: 1, source: "google-sheet", events: await enrichEvents(events) });
   } catch (error) {
     sendJson(response, {
       schemaVersion: 1,

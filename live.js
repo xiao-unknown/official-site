@@ -77,7 +77,7 @@
 
   /* ---------- card ---------- */
 
-  function createItem(event, isPast) {
+  function createItem(event, isPast, showEmbed) {
     const item = el("li", "live-item" + (isPast ? " is-past" : ""));
 
     const body = el("div", "live-item__body");
@@ -112,8 +112,8 @@
     if (actions.childNodes.length) body.appendChild(actions);
     item.appendChild(body);
 
-    // 告知ツイートの埋め込み（APIが tweetEmbed を返した場合のみ）
-    if (!isPast && event.tweetEmbed) {
+    // 告知ツイートの埋め込み（tweetEmbed があり、埋め込みを許可したリストのみ）
+    if (showEmbed && !isPast && event.tweetEmbed) {
       const embed = el("div", "live-embed");
       if (event.tweetEmbed.imageUrl) {
         const img = document.createElement("img");
@@ -167,6 +167,8 @@
   function renderList(list, events, isPast) {
     // data-live-limit="2" のように上限を指定できる（トップページの抜粋表示用）
     const total = events.length;
+    // data-live-embed="off" のリストでは告知ツイートの埋め込みを出さない（トップの抜粋用）
+    const showEmbed = list.getAttribute("data-live-embed") !== "off";
     const limitAttr = parseInt(list.getAttribute("data-live-limit"), 10);
     if (Number.isFinite(limitAttr) && limitAttr > 0) events = events.slice(0, limitAttr);
 
@@ -184,7 +186,7 @@
       list.appendChild(empty);
       return;
     }
-    events.forEach((event) => list.appendChild(createItem(event, isPast)));
+    events.forEach((event) => list.appendChild(createItem(event, isPast, showEmbed)));
   }
 
   function render(payload) {
