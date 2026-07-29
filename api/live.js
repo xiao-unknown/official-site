@@ -66,6 +66,11 @@ function toBoolean(value) {
   return ["true", "1", "yes", "y", "公開", "表示", "published"].includes(normalized);
 }
 
+// 「公開」列そのものが無いシート（Googleフォームの回答タブなど）は全行を公開扱いにする
+function hasPublishedColumn(headers) {
+  return ["published", "公開", "表示"].some((name) => headers.indexOf(normalizeHeader(name)) >= 0);
+}
+
 function normalizeDate(value) {
   const raw = String(value || "").trim();
   if (!raw) return "";
@@ -87,14 +92,14 @@ function resolveWeekday(input, date) {
   return Number.isNaN(d.getTime()) ? "" : WEEKDAYS[d.getUTCDay()];
 }
 
-function toEvent(row, headers, index) {
+function toEvent(row, headers, index, usePublishedColumn) {
   const date = normalizeDate(getCell(row, headers, ["date", "日付"]));
   const venue = getCell(row, headers, ["venue", "会場"]);
   const title = getCell(row, headers, ["title", "タイトル"]);
 
   return {
     id: getCell(row, headers, ["id", "ID"]) || [date, venue, title, index].filter(Boolean).join("-"),
-    published: toBoolean(getCell(row, headers, ["published", "公開", "表示"])),
+    published: usePublishedColumn ? toBoolean(getCell(row, headers, ["published", "公開", "表示"])) : true,
     date,
     weekday: resolveWeekday(getCell(row, headers, ["weekday", "曜日"]), date),
     venue,
@@ -190,10 +195,11 @@ module.exports = async function handler(request, response) {
     const csv = await sheetResponse.text();
     const rows = parseCsv(csv);
     const headers = rows[0].map(normalizeHeader);
+    const usePublishedColumn = hasPublishedColumn(headers);
     const events = rows
       .slice(1)
-      .map((row, index) => toEvent(row, headers, index + 1))
-      .filter((event) => event.published === true);
+      .map((row, index) => toEvent(row, headers, index + 1, usePublishedColumn))
+      .filter((event) => event.published === true && event.date);
 
     sendJson(response, { schemaVersion: 1, source: "google-sheet", events: await enrichEvents(events) });
   } catch (error) {

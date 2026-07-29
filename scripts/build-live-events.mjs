@@ -2,13 +2,19 @@
    スプレッドシートの公開CSVを取得して data/live-events.json を生成する。
    GitHub Actions (.github/workflows/sync-live-info.yml) から実行される。
    ローカル実行:  SHEET_CSV_URL="https://..." node scripts/build-live-events.mjs
+
+   SHEET_CSV_URL はカンマ・空白区切りで複数指定できる。
+   （手入力タブ＋Googleフォームの回答タブ、のように分かれている場合に使う）
    ========================================================= */
 import { writeFile, readFile } from "node:fs/promises";
 
-const CSV_URL = process.env.SHEET_CSV_URL;
+const CSV_URLS = String(process.env.SHEET_CSV_URL || "")
+  .split(/[\s,]+/)
+  .map((value) => value.trim())
+  .filter(Boolean);
 const OUT_PATH = new URL("../data/live-events.json", import.meta.url);
 
-if (!CSV_URL) {
+if (!CSV_URLS.length) {
   console.error("SHEET_CSV_URL が設定されていません。");
   process.exit(1);
 }
@@ -68,6 +74,11 @@ function getCell(row, headers, names) {
 function toBoolean(value) {
   const v = String(value || "").trim().toLowerCase();
   return ["true", "1", "yes", "y", "公開", "表示", "published"].includes(v);
+}
+
+// 「公開」列そのものが無いシート（Googleフォームの回答タブなど）は全行を公開扱いにする
+function hasPublishedColumn(headers) {
+  return ["published", "公開", "表示"].some((name) => headers.includes(normalizeHeader(name)));
 }
 
 function normalizeDate(value) {
@@ -131,42 +142,55 @@ async function fetchTweetEmbed(tweetUrl) {
   }
 }
 
-const response = await fetch(CSV_URL, { redirect: "follow" });
-if (!response.ok) {
-  console.error(`シートの取得に失敗しました: HTTP ${response.status}`);
-  process.exit(1);
-}
+async function loadEvents(url, sourceIndex) {
+  const response = await fetch(url, { redirect: "follow" });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-const rows = parseCsv(await response.text());
-if (rows.length < 2) {
-  console.error("シートの行が足りません。既存のJSONを維持して終了します。");
-  process.exit(1);
-}
+  const rows = parseCsv(await response.text());
+  if (rows.length < 2) throw new Error("行が足りません（見出しだけ、または空）");
 
-const headers = rows[0].map(normalizeHeader);
-if (!headers.includes("日付") && !headers.includes("date")) {
-  console.error("見出し行に『日付』が見つかりません。列構成が変わった可能性があります。");
-  process.exit(1);
+  const headers = rows[0].map(normalizeHeader);
+  if (!headers.includes("日付") && !headers.includes("date")) {
+    throw new Error("見出し行に『日付』が見つかりません");
+  }
+
+  // 「公開」列が無いタブ（フォームの回答など）は全行を公開扱いにする
+  const usePublishedColumn = hasPublishedColumn(headers);
+
+  return rows.slice(1).map((row, index) => {
+    const date = normalizeDate(getCell(row, headers, ["date", "日付"]));
+    const venue = getCell(row, headers, ["venue", "会場"]);
+    const title = getCell(row, headers, ["title", "タイトル"]);
+    return {
+      id: getCell(row, headers, ["id", "ID"]) ||
+        [date, venue, title, `${sourceIndex}-${index + 1}`].filter(Boolean).join("-"),
+      published: usePublishedColumn ? toBoolean(getCell(row, headers, ["published", "公開", "表示"])) : true,
+      date,
+      weekday: resolveWeekday(getCell(row, headers, ["weekday", "曜日"]), date),
+      venue,
+      title,
+      detail: getCell(row, headers, ["detail", "詳細"]),
+      ticketUrl: getCell(row, headers, ["ticketUrl", "ticket", "チケットURL", "予約URL"]),
+      tweetUrl: getCell(row, headers, ["tweetUrl", "tweet", "ツイートURL", "告知ツイートURL"]),
+      note: getCell(row, headers, ["note", "備考", "メモ"]),
+    };
+  }).filter((event) => event.published === true && event.date);
 }
 
 // 公開=TRUE の行だけを書き出す（非公開行はリポジトリにも残さない）
-const events = rows.slice(1).map((row, index) => {
-  const date = normalizeDate(getCell(row, headers, ["date", "日付"]));
-  const venue = getCell(row, headers, ["venue", "会場"]);
-  const title = getCell(row, headers, ["title", "タイトル"]);
-  return {
-    id: getCell(row, headers, ["id", "ID"]) || [date, venue, title, index + 1].filter(Boolean).join("-"),
-    published: toBoolean(getCell(row, headers, ["published", "公開", "表示"])),
-    date,
-    weekday: resolveWeekday(getCell(row, headers, ["weekday", "曜日"]), date),
-    venue,
-    title,
-    detail: getCell(row, headers, ["detail", "詳細"]),
-    ticketUrl: getCell(row, headers, ["ticketUrl", "ticket", "チケットURL", "予約URL"]),
-    tweetUrl: getCell(row, headers, ["tweetUrl", "tweet", "ツイートURL", "告知ツイートURL"]),
-    note: getCell(row, headers, ["note", "備考", "メモ"]),
-  };
-}).filter((event) => event.published === true);
+const events = [];
+for (const [index, url] of CSV_URLS.entries()) {
+  try {
+    const loaded = await loadEvents(url, index + 1);
+    console.log(`取得: ${loaded.length}件 (${index + 1}/${CSV_URLS.length})`);
+    events.push(...loaded);
+  } catch (error) {
+    // 1つでも取れなければ既存JSONを壊さずに中断する
+    console.error(`シートの取得に失敗しました (${index + 1}/${CSV_URLS.length}): ${error.message}`);
+    process.exit(1);
+  }
+}
+events.sort((a, b) => String(a.date).localeCompare(String(b.date)));
 
 // 告知ツイートがある公演にフライヤー画像・本文を付ける
 const enriched = await Promise.all(
