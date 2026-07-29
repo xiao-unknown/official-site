@@ -1,27 +1,27 @@
 {
   "schemaVersion": 1,
-  "source": "google-sheet",
+  "source": "sync-test",
   "events": [
     {
-      "id": "2026-08-16-新宿SAMPLE HALL-SAMPLE LIVE vol.01-1",
+      "id": "2026-08-16-譁ｰ螳ｿSAMPLE HALL-SAMPLE LIVE vol.01-1",
       "published": true,
       "date": "2026-08-16",
       "weekday": "Sun",
-      "venue": "新宿SAMPLE HALL",
+      "venue": "譁ｰ螳ｿSAMPLE HALL",
       "title": "SAMPLE LIVE vol.01",
-      "detail": "対バン / 出演17:40〜",
+      "detail": "蟇ｾ繝舌Φ / 蜃ｺ貍・7:40縲・,
       "ticketUrl": "https://example.com/ticket/0816",
       "tweetUrl": "",
-      "note": "←この行は記入例です。上書きして使ってください"
+      "note": "竊舌％縺ｮ陦後・險伜・萓九〒縺吶ゆｸ頑嶌縺阪＠縺ｦ菴ｿ縺｣縺ｦ縺上□縺輔＞"
     },
     {
-      "id": "2026-09-13-渋谷SAMPLE STUDIO-SAMPLE SESSION-2",
+      "id": "2026-09-13-貂玖ｰｷSAMPLE STUDIO-SAMPLE SESSION-2",
       "published": true,
       "date": "2026-09-13",
       "weekday": "Sun",
-      "venue": "渋谷SAMPLE STUDIO",
+      "venue": "貂玖ｰｷSAMPLE STUDIO",
       "title": "SAMPLE SESSION",
-      "detail": "ワンマン / 開場18:00 開演18:30",
+      "detail": "繝ｯ繝ｳ繝槭Φ / 髢句ｴ18:00 髢区ｼ・8:30",
       "ticketUrl": "",
       "tweetUrl": "",
       "note": ""
