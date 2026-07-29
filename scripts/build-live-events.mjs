@@ -77,6 +77,18 @@ function normalizeDate(value) {
   return `${m[1]}-${String(m[2]).padStart(2, "0")}-${String(m[3]).padStart(2, "0")}`;
 }
 
+const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+// 曜日が空欄なら日付から自動で求める（スマホ入力の手数を減らすため）
+function resolveWeekday(input, date) {
+  const given = String(input || "").trim();
+  if (given) return given;
+  const m = String(date || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m) return "";
+  const d = new Date(Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3])));
+  return Number.isNaN(d.getTime()) ? "" : WEEKDAYS[d.getUTCDay()];
+}
+
 const response = await fetch(CSV_URL, { redirect: "follow" });
 if (!response.ok) {
   console.error(`シートの取得に失敗しました: HTTP ${response.status}`);
@@ -104,7 +116,7 @@ const events = rows.slice(1).map((row, index) => {
     id: getCell(row, headers, ["id", "ID"]) || [date, venue, title, index + 1].filter(Boolean).join("-"),
     published: toBoolean(getCell(row, headers, ["published", "公開", "表示"])),
     date,
-    weekday: getCell(row, headers, ["weekday", "曜日"]),
+    weekday: resolveWeekday(getCell(row, headers, ["weekday", "曜日"]), date),
     venue,
     title,
     detail: getCell(row, headers, ["detail", "詳細"]),

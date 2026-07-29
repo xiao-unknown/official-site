@@ -75,6 +75,18 @@ function normalizeDate(value) {
   return `${m[1]}-${String(m[2]).padStart(2, "0")}-${String(m[3]).padStart(2, "0")}`;
 }
 
+const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+// 曜日が空欄なら日付から自動で求める
+function resolveWeekday(input, date) {
+  const given = String(input || "").trim();
+  if (given) return given;
+  const m = String(date || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m) return "";
+  const d = new Date(Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3])));
+  return Number.isNaN(d.getTime()) ? "" : WEEKDAYS[d.getUTCDay()];
+}
+
 function toEvent(row, headers, index) {
   const date = normalizeDate(getCell(row, headers, ["date", "日付"]));
   const venue = getCell(row, headers, ["venue", "会場"]);
@@ -84,7 +96,7 @@ function toEvent(row, headers, index) {
     id: getCell(row, headers, ["id", "ID"]) || [date, venue, title, index].filter(Boolean).join("-"),
     published: toBoolean(getCell(row, headers, ["published", "公開", "表示"])),
     date,
-    weekday: getCell(row, headers, ["weekday", "曜日"]),
+    weekday: resolveWeekday(getCell(row, headers, ["weekday", "曜日"]), date),
     venue,
     title,
     detail: getCell(row, headers, ["detail", "詳細"]),
