@@ -9,28 +9,56 @@
   if (!canvas) return;
   const ctx = canvas.getContext("2d");
   const density = 0.55;
+  const FRAME_COUNT = 8; // 事前生成フレームを巡回（毎フレーム生成はCPU負荷が高いため）
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  let frames = [];
 
-  function resize() {
-    canvas.width = Math.max(2, Math.floor(window.innerWidth * density));
-    canvas.height = Math.max(2, Math.floor(window.innerHeight * density));
-  }
-  let last = 0;
-  function draw(t) {
-    requestAnimationFrame(draw);
-    if (t - last < 66) return;
-    last = t;
-    const img = ctx.createImageData(canvas.width, canvas.height);
+  function makeFrame(w, h) {
+    const off = document.createElement("canvas");
+    off.width = w;
+    off.height = h;
+    const octx = off.getContext("2d");
+    const img = octx.createImageData(w, h);
     const d = img.data;
     for (let i = 0; i < d.length; i += 4) {
       const v = Math.random() * 255;
       d[i] = d[i + 1] = d[i + 2] = v;
       d[i + 3] = 8 + Math.random() * 52;
     }
-    ctx.putImageData(img, 0, 0);
+    octx.putImageData(img, 0, 0);
+    return off;
   }
-  resize();
+
+  function rebuild() {
+    const w = Math.max(2, Math.floor(window.innerWidth * density));
+    const h = Math.max(2, Math.floor(window.innerHeight * density));
+    canvas.width = w;
+    canvas.height = h;
+    frames = [];
+    for (let i = 0; i < FRAME_COUNT; i++) frames.push(makeFrame(w, h));
+    ctx.drawImage(frames[0], 0, 0);
+  }
+
+  let last = 0;
+  let frameIndex = 0;
+  function draw(t) {
+    requestAnimationFrame(draw);
+    if (reduceMotion.matches) return; // 静止1フレームのまま
+    if (t - last < 66) return;
+    last = t;
+    frameIndex = (frameIndex + 1) % frames.length;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(frames[frameIndex], 0, 0);
+  }
+
+  let resizeTimer = 0;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(rebuild, 200);
+  });
+
+  rebuild();
   requestAnimationFrame(draw);
-  window.addEventListener("resize", resize);
 })();
 
 /* ---------- slide-in sidebar ---------- */

@@ -128,7 +128,11 @@
           embed.classList.toggle("live-embed--wide", w / h >= 1.15);
         };
         applyOrientation(event.tweetEmbed.imageWidth, event.tweetEmbed.imageHeight);
-        img.addEventListener("load", () => applyOrientation(img.naturalWidth, img.naturalHeight));
+        img.addEventListener("load", () => {
+          applyOrientation(img.naturalWidth, img.naturalHeight);
+          img.classList.add("is-loaded"); // pages.css 側でフェードイン
+        });
+        if (img.complete && img.naturalWidth) img.classList.add("is-loaded");
 
         embed.appendChild(img);
       }
@@ -195,7 +199,12 @@
       list.appendChild(empty);
       return;
     }
-    events.forEach((event) => list.appendChild(createItem(event, isPast, showEmbed)));
+    events.forEach((event, i) => {
+      const item = createItem(event, isPast, showEmbed);
+      // pages.css の rise-in を50ms間隔でスタッガー（下の方は待たせすぎない）
+      item.style.animationDelay = Math.min(i * 50, 300) + "ms";
+      list.appendChild(item);
+    });
   }
 
   function render(payload) {

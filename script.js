@@ -2,6 +2,9 @@
    XIAO — official site interactions
    ========================================================= */
 
+/* JSが動く環境でだけhero入場アニメーションを有効化する（無効環境では静的表示） */
+document.body.classList.add("js");
+
 /* ---------- YouTube playlist preview ---------- */
 const PLAYLIST_ID = "PLXcNOFx8ryDIF2CMmRACsHkOPPiezLnpn";
 const INITIAL_VIDEO_TITLE = /MONOCHROME/i;
@@ -236,7 +239,11 @@ railTrack.addEventListener("click", (e) => {
   const intro = document.querySelector("#intro");
   const bar = document.querySelector("#introBar");
   const count = document.querySelector("#introCount");
-  if (!intro) return;
+  const showHero = () => document.body.classList.add("hero-in");
+  if (!intro) {
+    showHero();
+    return;
+  }
 
   // play once per session; skip entirely when embedded in a preview iframe
   const embedded = window.self !== window.top;
@@ -244,6 +251,8 @@ railTrack.addEventListener("click", (e) => {
   if (embedded || (!replayIntro && sessionStorage.getItem("introDone"))) {
     intro.classList.add("is-hidden");
     intro.remove();
+    // 2回目以降は入場演出なしで即表示（クラス付与が初回描画前なのでアニメしない）
+    showHero();
     return;
   }
 
@@ -254,6 +263,8 @@ railTrack.addEventListener("click", (e) => {
       count.textContent = "100%";
       return;
     }
+    // イントロのフェードと同時にheroが立ち上がる
+    showHero();
     intro.classList.add("is-hidden");
     if (!replayIntro) sessionStorage.setItem("introDone", "1");
     setTimeout(() => intro.remove(), 800);
@@ -276,18 +287,16 @@ railTrack.addEventListener("click", (e) => {
   if (!canvas) return;
   const ctx = canvas.getContext("2d");
   const density = 0.55; // higher = finer grain
+  const FRAME_COUNT = 8; // 事前生成フレームを巡回（毎フレーム生成はCPU負荷が高いため）
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  let frames = [];
 
-  function resize() {
-    canvas.width = Math.max(2, Math.floor(window.innerWidth * density));
-    canvas.height = Math.max(2, Math.floor(window.innerHeight * density));
-  }
-  // throttle to ~15fps for a slower analog flicker
-  let last = 0;
-  function draw(t) {
-    requestAnimationFrame(draw);
-    if (t - last < 66) return;
-    last = t;
-    const img = ctx.createImageData(canvas.width, canvas.height);
+  function makeFrame(w, h) {
+    const off = document.createElement("canvas");
+    off.width = w;
+    off.height = h;
+    const octx = off.getContext("2d");
+    const img = octx.createImageData(w, h);
     const d = img.data;
     for (let i = 0; i < d.length; i += 4) {
       const v = Math.random() * 255;
@@ -295,11 +304,41 @@ railTrack.addEventListener("click", (e) => {
       // thinner, more subtle static grains
       d[i + 3] = 8 + Math.random() * 52;
     }
-    ctx.putImageData(img, 0, 0);
+    octx.putImageData(img, 0, 0);
+    return off;
   }
-  resize();
+
+  function rebuild() {
+    const w = Math.max(2, Math.floor(window.innerWidth * density));
+    const h = Math.max(2, Math.floor(window.innerHeight * density));
+    canvas.width = w;
+    canvas.height = h;
+    frames = [];
+    for (let i = 0; i < FRAME_COUNT; i++) frames.push(makeFrame(w, h));
+    ctx.drawImage(frames[0], 0, 0);
+  }
+
+  // throttle to ~15fps for a slower analog flicker
+  let last = 0;
+  let frameIndex = 0;
+  function draw(t) {
+    requestAnimationFrame(draw);
+    if (reduceMotion.matches) return; // 静止1フレームのまま
+    if (t - last < 66) return;
+    last = t;
+    frameIndex = (frameIndex + 1) % frames.length;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(frames[frameIndex], 0, 0);
+  }
+
+  let resizeTimer = 0;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(rebuild, 200);
+  });
+
+  rebuild();
   requestAnimationFrame(draw);
-  window.addEventListener("resize", resize);
 })();
 
 /* ---------- slide-in sidebar ---------- */

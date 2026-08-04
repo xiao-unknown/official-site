@@ -3,11 +3,27 @@
    styles.css のトークン・質感をそのまま使う追加レイヤー
    ========================================================= */
 
+/* ---------- 入場アニメーション共通 ---------- */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
 /* ---------- page hero (下層ページ共通) ---------- */
 .page-hero {
   position: relative;
   padding: clamp(128px, 18vh, 210px) 0 clamp(40px, 6vw, 72px);
 }
+.crumbs,
+.page-hero__eyebrow,
+.page-hero__title,
+.page-hero__sub {
+  animation: rise-in 0.5s var(--ease) backwards;
+}
+.page-hero__title { animation-delay: 60ms; }
+.page-hero__sub { animation-delay: 120ms; }
 .page-hero__eyebrow {
   margin: 0 0 14px;
   font-family: var(--font-mono);
@@ -103,6 +119,8 @@
   border: 1px solid var(--line);
   background: var(--panel);
   transition: border-color 0.25s var(--ease), transform 0.25s var(--ease);
+  /* 各itemのdelayは live.js が animation-delay で指定（50ms間隔のスタッガー） */
+  animation: rise-in 0.3s var(--ease) backwards;
 }
 .live-item::before {
   content: "";
@@ -112,7 +130,10 @@
   background: linear-gradient(180deg, transparent, var(--blue), transparent);
   opacity: 0.55;
 }
-.live-item:hover { border-color: var(--blue); transform: translateY(-2px); }
+.live-item:hover { border-color: var(--blue); }
+@media (hover: hover) and (pointer: fine) {
+  .live-item:hover { transform: translateY(-2px); }
+}
 .live-item.is-past { opacity: 0.78; }
 .live-item.is-past::before { background: var(--line); opacity: 1; }
 .live-item.is-past:hover { opacity: 0.85; }
@@ -187,7 +208,7 @@
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--muted);
-  transition: border-color 0.25s var(--ease), color 0.25s var(--ease), background 0.25s var(--ease);
+  transition: border-color 0.25s var(--ease), color 0.25s var(--ease), background 0.25s var(--ease), transform 0.16s var(--ease);
 }
 .live-btn:hover { border-color: var(--blue); color: #fff; background: rgba(130, 1, 1, 0.12); }
 .live-btn--primary { border-color: var(--blue-dim); color: #f4f5f7; }
@@ -207,13 +228,17 @@
 .live-embed--wide { grid-template-columns: minmax(0, 1fr); }
 .live-embed--wide .live-embed__img { max-width: 100%; }
 
-/* フライヤーは縦横比がまちまちなので切り抜かずに全体を見せる */
+/* フライヤーは縦横比がまちまちなので切り抜かずに全体を見せる。
+   読み込み完了時に live.js が .is-loaded を付けてフェードイン */
 .live-embed__img {
   width: 100%;
   height: auto;
   border: 1px solid var(--line-soft);
   filter: saturate(0.85) contrast(1.05);
+  opacity: 0;
+  transition: opacity 0.25s ease;
 }
+.live-embed__img.is-loaded { opacity: 1; }
 .live-embed__text {
   margin: 0;
   font-size: clamp(0.78rem, 0.98vw, 0.95rem);
@@ -272,7 +297,10 @@
   text-align: left;
   transition: border-color 0.25s var(--ease), transform 0.25s var(--ease);
 }
-.movie-card:hover { transform: translateY(-3px); border-color: var(--blue); }
+.movie-card:hover { border-color: var(--blue); }
+@media (hover: hover) and (pointer: fine) {
+  .movie-card:hover { transform: translateY(-3px); }
+}
 .movie-card.is-active { border-color: var(--blue); box-shadow: inset 0 0 0 1px rgba(130, 1, 1, 0.4); }
 .movie-card__img {
   position: relative;
@@ -394,6 +422,22 @@
   transition: border-color 0.25s var(--ease), color 0.25s var(--ease);
 }
 .page-back a:hover { border-color: var(--blue); color: #fff; }
+
+/* ---------- press feedback ---------- */
+.page-back a { transition: border-color 0.25s var(--ease), color 0.25s var(--ease), transform 0.16s var(--ease); }
+:is(.live-btn, .page-back a, .movie-card):active { transform: scale(0.97); }
+
+/* ---------- reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .crumbs,
+  .page-hero__eyebrow,
+  .page-hero__title,
+  .page-hero__sub,
+  .live-item { animation: none; }
+  .live-item:hover,
+  .movie-card:hover { transform: none; }
+  /* フライヤーのフェードは opacity のみなので残す */
+}
 
 /* ---------- responsive ---------- */
 @media (max-width: 760px) {
