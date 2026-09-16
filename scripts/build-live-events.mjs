@@ -7,6 +7,9 @@
    （手入力タブ＋Googleフォームの回答タブ、のように分かれている場合に使う）
    ========================================================= */
 import { writeFile, readFile } from "node:fs/promises";
+import liveKeyVisual from "../lib/live-key-visual.js";
+
+const { enrichLiveEvents, makeEventId } = liveKeyVisual;
 
 const CSV_URLS = String(process.env.SHEET_CSV_URL || "")
   .split(/[\s,]+/)
@@ -163,7 +166,7 @@ async function loadEvents(url, sourceIndex) {
     const title = getCell(row, headers, ["title", "タイトル"]);
     return {
       id: getCell(row, headers, ["id", "ID"]) ||
-        [date, venue, title, `${sourceIndex}-${index + 1}`].filter(Boolean).join("-"),
+        makeEventId(date, venue, title, sourceIndex, index + 1),
       published: usePublishedColumn ? toBoolean(getCell(row, headers, ["published", "公開", "表示"])) : true,
       date,
       weekday: resolveWeekday(getCell(row, headers, ["weekday", "曜日"]), date),
@@ -173,6 +176,12 @@ async function loadEvents(url, sourceIndex) {
       ticketUrl: getCell(row, headers, ["ticketUrl", "ticket", "チケットURL", "予約URL"]),
       tweetUrl: getCell(row, headers, ["tweetUrl", "tweet", "ツイートURL", "告知ツイートURL"]),
       note: getCell(row, headers, ["note", "備考", "メモ"]),
+      keyVisualUrl: getCell(row, headers, [
+        "keyVisualUrl",
+        "キービジュアルURL",
+        "キービジュアルURL(任意)",
+        "キービジュアルURL（任意）",
+      ]),
     };
   }).filter((event) => event.published === true && event.date);
 }
@@ -192,18 +201,18 @@ for (const [index, url] of CSV_URLS.entries()) {
 }
 events.sort((a, b) => String(a.date).localeCompare(String(b.date)));
 
-// 告知ツイートがある公演にフライヤー画像・本文を付ける
-const enriched = await Promise.all(
-  events.map(async (event) => {
-    if (!event.tweetUrl) return event;
-    const tweetEmbed = await fetchTweetEmbed(event.tweetUrl);
-    if (!tweetEmbed) {
-      console.warn(`ツイートを取得できませんでした: ${event.tweetUrl}`);
-      return event;
-    }
-    return { ...event, tweetEmbed };
-  })
-);
+let current = "";
+let previousEvents = [];
+try {
+  current = await readFile(OUT_PATH, "utf8");
+  const previousPayload = JSON.parse(current);
+  previousEvents = Array.isArray(previousPayload.events) ? previousPayload.events : [];
+} catch {
+  /* 初回または既存JSONが不正な場合は前回値なしで続行する */
+}
+
+// 告知ツイートの本文と、任意指定された後発キービジュアルを付ける
+const enriched = await enrichLiveEvents(events, previousEvents, fetchTweetEmbed);
 
 const payload = {
   schemaVersion: 1,
@@ -213,18 +222,12 @@ const payload = {
 
 const next = JSON.stringify(payload, null, 2) + "\n";
 
-let current = "";
-try {
-  current = await readFile(OUT_PATH, "utf8");
-} catch {
-  /* 初回は存在しない */
-}
-
 const embedCount = enriched.filter((e) => e.tweetEmbed).length;
+const keyVisualCount = enriched.filter((e) => e.keyVisual).length;
 
 if (current === next) {
-  console.log(`変更なし（${events.length}件 / 埋め込み${embedCount}件）`);
+  console.log(`変更なし（${events.length}件 / 埋め込み${embedCount}件 / キービジュアル${keyVisualCount}件）`);
 } else {
   await writeFile(OUT_PATH, next, "utf8");
-  console.log(`data/live-events.json を更新しました（${events.length}件 / 埋め込み${embedCount}件）`);
+  console.log(`data/live-events.json を更新しました（${events.length}件 / 埋め込み${embedCount}件 / キービジュアル${keyVisualCount}件）`);
 }

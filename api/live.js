@@ -5,6 +5,7 @@
    公開列が TRUE の行だけを返す（非公開行はブラウザに届かない）。
    ========================================================= */
 const fallbackData = require("../data/live-events.json");
+const { enrichLiveEvents, makeEventId } = require("../lib/live-key-visual.js");
 
 function parseCsv(csv) {
   const rows = [];
@@ -98,7 +99,7 @@ function toEvent(row, headers, index, usePublishedColumn) {
   const title = getCell(row, headers, ["title", "タイトル"]);
 
   return {
-    id: getCell(row, headers, ["id", "ID"]) || [date, venue, title, index].filter(Boolean).join("-"),
+    id: getCell(row, headers, ["id", "ID"]) || makeEventId(date, venue, title, 1, index),
     published: usePublishedColumn ? toBoolean(getCell(row, headers, ["published", "公開", "表示"])) : true,
     date,
     weekday: resolveWeekday(getCell(row, headers, ["weekday", "曜日"]), date),
@@ -108,6 +109,12 @@ function toEvent(row, headers, index, usePublishedColumn) {
     ticketUrl: getCell(row, headers, ["ticketUrl", "ticket", "チケットURL", "予約URL"]),
     tweetUrl: getCell(row, headers, ["tweetUrl", "tweet", "ツイートURL", "告知ツイートURL"]),
     note: getCell(row, headers, ["note", "備考", "メモ"]),
+    keyVisualUrl: getCell(row, headers, [
+      "keyVisualUrl",
+      "キービジュアルURL",
+      "キービジュアルURL(任意)",
+      "キービジュアルURL（任意）",
+    ]),
   };
 }
 
@@ -116,7 +123,8 @@ function toEvent(row, headers, index, usePublishedColumn) {
 const FX_HOST = "https://api.fxtwitter.com";
 const TWEET_URL_RE = /^https?:\/\/(?:www\.)?(?:twitter\.com|x\.com)\/([A-Za-z0-9_]{1,15})\/status\/(\d+)/i;
 const IMAGE_HOST_PREFIX = "https://pbs.twimg.com/";
-const FETCH_TIMEOUT_MS = 6000;
+const FETCH_TIMEOUT_MS = 2500;
+const API_MAX_EVENTS = 8;
 
 async function fetchTweetEmbed(tweetUrl) {
   const match = TWEET_URL_RE.exec(String(tweetUrl || "").trim());
@@ -148,14 +156,11 @@ async function fetchTweetEmbed(tweetUrl) {
   }
 }
 
-async function enrichEvents(events) {
-  return Promise.all(
-    events.map(async (event) => {
-      if (!event.tweetUrl || event.tweetEmbed) return event;
-      const tweetEmbed = await fetchTweetEmbed(event.tweetUrl);
-      return tweetEmbed ? { ...event, tweetEmbed } : event;
-    })
-  );
+async function enrichEvents(events, previousEvents) {
+  return enrichLiveEvents(events, previousEvents, fetchTweetEmbed, {
+    maxEvents: API_MAX_EVENTS,
+    concurrency: 4,
+  });
 }
 
 function publicEvents(events) {
@@ -201,7 +206,12 @@ module.exports = async function handler(request, response) {
       .map((row, index) => toEvent(row, headers, index + 1, usePublishedColumn))
       .filter((event) => event.published === true && event.date);
 
-    sendJson(response, { schemaVersion: 1, source: "google-sheet", events: await enrichEvents(events) });
+    const previousEvents = Array.isArray(fallbackData.events) ? fallbackData.events : [];
+    sendJson(response, {
+      schemaVersion: 1,
+      source: "google-sheet",
+      events: await enrichEvents(events, previousEvents),
+    });
   } catch (error) {
     sendJson(response, {
       schemaVersion: 1,
