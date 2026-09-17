@@ -6,7 +6,7 @@
      3. EMBEDDED_FALLBACK     … file:// で開いた時のモック表示用
    受け取るJSONの形はminagireiの /api/live と同一:
      { schemaVersion, source, events: [{ id, published, date, weekday,
-       venue, title, detail, ticketUrl, tweetUrl, note, tweetEmbed? }] }
+       venue, title, detail, ticketUrl, tweetUrl, note, keyVisualUrl?, keyVisual?, tweetEmbed? }] }
    ========================================================= */
 (function () {
   "use strict";
@@ -112,13 +112,14 @@
     if (actions.childNodes.length) body.appendChild(actions);
     item.appendChild(body);
 
-    // 告知ツイートの埋め込み（tweetEmbed があり、埋め込みを許可したリストのみ）
-    if (showEmbed && !isPast && event.tweetEmbed) {
+    // 後発キービジュアルがあれば画像だけを優先し、本文・リンクは元の告知ツイートを保つ
+    const visual = event.keyVisual && event.keyVisual.imageUrl ? event.keyVisual : event.tweetEmbed;
+    if (showEmbed && !isPast && (visual || event.tweetEmbed)) {
       const embed = el("div", "live-embed");
-      if (event.tweetEmbed.imageUrl) {
+      if (visual && visual.imageUrl) {
         const img = document.createElement("img");
         img.className = "live-embed__img";
-        img.src = event.tweetEmbed.imageUrl;
+        img.src = visual.imageUrl;
         img.alt = "告知フライヤー";
         img.loading = "lazy";
 
@@ -127,14 +128,34 @@
           if (!w || !h) return;
           embed.classList.toggle("live-embed--wide", w / h >= 1.15);
         };
-        applyOrientation(event.tweetEmbed.imageWidth, event.tweetEmbed.imageHeight);
-        img.addEventListener("load", () => applyOrientation(img.naturalWidth, img.naturalHeight));
+        applyOrientation(visual.imageWidth, visual.imageHeight);
+        img.addEventListener("load", () => {
+          applyOrientation(img.naturalWidth, img.naturalHeight);
+          img.classList.add("is-loaded"); // pages.css 側でフェードイン
+        });
+        const fallbackVisual = event.tweetEmbed && event.tweetEmbed.imageUrl
+          && event.tweetEmbed.imageUrl !== visual.imageUrl
+          ? event.tweetEmbed
+          : null;
+        let fallbackAttempted = false;
+        img.addEventListener("error", () => {
+          if (!fallbackAttempted && fallbackVisual) {
+            fallbackAttempted = true;
+            img.src = fallbackVisual.imageUrl;
+            applyOrientation(fallbackVisual.imageWidth, fallbackVisual.imageHeight);
+            return;
+          }
+          img.remove();
+        });
+        if (img.complete && img.naturalWidth) img.classList.add("is-loaded");
 
         embed.appendChild(img);
       }
       const textWrap = el("div");
-      if (event.tweetEmbed.text) textWrap.appendChild(el("p", "live-embed__text", event.tweetEmbed.text));
-      if (event.tweetEmbed.url) {
+      if (event.tweetEmbed && event.tweetEmbed.text) {
+        textWrap.appendChild(el("p", "live-embed__text", event.tweetEmbed.text));
+      }
+      if (event.tweetEmbed && event.tweetEmbed.url) {
         textWrap.appendChild(externalLink(event.tweetEmbed.url, "View on X", "live-embed__link"));
       }
       embed.appendChild(textWrap);
@@ -195,7 +216,12 @@
       list.appendChild(empty);
       return;
     }
-    events.forEach((event) => list.appendChild(createItem(event, isPast, showEmbed)));
+    events.forEach((event, i) => {
+      const item = createItem(event, isPast, showEmbed);
+      // pages.css の rise-in を50ms間隔でスタッガー（下の方は待たせすぎない）
+      item.style.animationDelay = Math.min(i * 50, 300) + "ms";
+      list.appendChild(item);
+    });
   }
 
   function render(payload) {

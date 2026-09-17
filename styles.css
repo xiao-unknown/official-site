@@ -177,6 +177,7 @@ h1, h2 { font-family: var(--font-heading); }
   display: inline-flex;
   align-items: center;
   gap: 11px;
+  transition: transform 0.16s var(--ease);
   font-family: var(--font-mono);
   font-size: clamp(0.82rem, 1vw, 1rem);
   letter-spacing: 0.16em;
@@ -228,7 +229,7 @@ h1, h2 { font-family: var(--font-heading); }
   border: 1px solid var(--line);
   background: rgba(9, 9, 12, 0.5);
   color: rgba(255, 255, 255, 0.82);
-  transition: border-color 0.25s var(--ease), color 0.25s var(--ease), background 0.25s var(--ease);
+  transition: border-color 0.25s var(--ease), color 0.25s var(--ease), background 0.25s var(--ease), transform 0.16s var(--ease);
 }
 .official-links a:hover {
   border-color: var(--blue);
@@ -307,6 +308,12 @@ main { position: relative; z-index: 5; }
   text-shadow: 0 0 38px rgba(130, 1, 1, 0.22);
 }
 .hero__accent { color: var(--blue); }
+/* 旧 __om-edit-overrides（index.html内の編集ツール残骸）の最終値を移設 */
+#page-title .hero__accent {
+  font-family: var(--font-heading);
+  line-height: 0.85;
+  letter-spacing: -1.8px;
+}
 .hero__sub {
   margin: 4px 0 0;
   font-family: var(--font-mono);
@@ -316,6 +323,23 @@ main { position: relative; z-index: 5; }
   color: var(--muted);
 }
 .hero__sub b { color: var(--blue); font-weight: 400; }
+
+/* hero entrance — script.js が body に .js を付与し、イントロ完了時に .hero-in を付与する */
+body.js .hero__date,
+body.js .hero__title .ln,
+body.js .hero__sub {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.5s var(--ease), transform 0.5s var(--ease);
+}
+body.js .hero__title .ln--solid { transition-delay: 60ms; }
+body.js .hero__sub { transition-delay: 120ms; }
+body.hero-in .hero__date,
+body.hero-in .hero__title .ln,
+body.hero-in .hero__sub {
+  opacity: 1;
+  transform: none;
+}
 
 /* diagonal mark */
 .mark {
@@ -467,7 +491,9 @@ main { position: relative; z-index: 5; }
   text-align: left;
   transition: border-color 0.25s var(--ease), transform 0.25s var(--ease);
 }
-.thumb:hover { transform: translateY(-3px); }
+@media (hover: hover) and (pointer: fine) {
+  .thumb:hover { transform: translateY(-3px); }
+}
 .thumb:hover, .thumb.is-active { border-color: var(--blue); }
 .thumb.is-active { box-shadow: inset 0 0 0 1px rgba(130, 1, 1, 0.4); }
 .thumb__img { display: block; width: 100%; aspect-ratio: 16/9; background: var(--thumb) center / cover, var(--bg-soft); filter: saturate(0.78) contrast(1.06); position: relative; }
@@ -533,7 +559,7 @@ main { position: relative; z-index: 5; }
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--muted);
-  transition: border-color 0.25s var(--ease), color 0.25s var(--ease);
+  transition: border-color 0.25s var(--ease), color 0.25s var(--ease), transform 0.16s var(--ease);
 }
 .contact__sns a:hover { border-color: var(--blue); color: #fff; }
 .contact__sns svg { width: 16px; height: 16px; fill: currentColor; }
@@ -549,9 +575,9 @@ main { position: relative; z-index: 5; }
   -webkit-backdrop-filter: blur(3px);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.4s var(--ease);
+  transition: opacity 0.25s var(--ease);
 }
-body.nav-open .nav-backdrop { opacity: 1; pointer-events: auto; }
+body.nav-open .nav-backdrop { opacity: 1; pointer-events: auto; transition-duration: 0.4s; }
 
 .sidebar {
   position: fixed;
@@ -570,7 +596,8 @@ body.nav-open .nav-backdrop { opacity: 1; pointer-events: auto; }
   border-right: 1px solid rgba(130, 1, 1, 0.32);
   box-shadow: 32px 0 90px rgba(0, 0, 0, 0.62);
   transform: translateX(-101%);
-  transition: transform 0.5s var(--ease);
+  /* 閉じは速く（0.28s）、開きは body.nav-open 側で 0.4s に上書き */
+  transition: transform 0.28s var(--ease);
   overflow-y: auto;
 }
 .sidebar::before {
@@ -581,7 +608,7 @@ body.nav-open .nav-backdrop { opacity: 1; pointer-events: auto; }
   background: linear-gradient(180deg, transparent, var(--blue), transparent);
   opacity: 0.5;
 }
-body.nav-open .sidebar { transform: none; }
+body.nav-open .sidebar { transform: none; transition-duration: 0.4s; }
 
 .sidebar__top { display: flex; align-items: center; justify-content: space-between; }
 .sidebar__brand {
@@ -608,7 +635,7 @@ body.nav-open .sidebar { transform: none; }
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--muted);
-  transition: color 0.25s var(--ease);
+  transition: color 0.25s var(--ease), transform 0.16s var(--ease);
 }
 .sidebar__close i {
   position: relative;
@@ -669,7 +696,7 @@ body.nav-open .sidebar { transform: none; }
   border: 1px solid var(--line);
   background: rgba(9, 9, 12, 0.5);
   color: rgba(255, 255, 255, 0.82);
-  transition: border-color 0.25s var(--ease), color 0.25s var(--ease), background 0.25s var(--ease);
+  transition: border-color 0.25s var(--ease), color 0.25s var(--ease), background 0.25s var(--ease), transform 0.16s var(--ease);
 }
 .sidebar__sns a:hover { border-color: var(--blue); color: #fff; background: rgba(130, 1, 1, 0.12); }
 .sidebar__sns svg { width: 18px; height: 18px; fill: currentColor; }
@@ -696,6 +723,34 @@ body.nav-open .menu-button .bars i:last-child { transform: translateY(-3px) rota
   letter-spacing: 0.14em;
   color: var(--muted-dim);
   text-transform: uppercase;
+}
+
+/* ---------- press feedback ---------- */
+:is(.menu-button, .official-links a, .sidebar__sns a, .sidebar__close, .contact__sns a, .thumb):active {
+  transform: scale(0.97);
+}
+
+/* ---------- reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+
+  /* 常時動作する装飾は静止させる（opacity/色のトランジションは残す） */
+  .fx--grain { animation: none; }
+  .mark__ring { animation: none; }
+  .rail__track { animation-play-state: paused; }
+
+  /* 位置移動をともなう演出は動きを外す */
+  body.js .hero__date,
+  body.js .hero__title .ln,
+  body.js .hero__sub {
+    transform: none;
+    transition: opacity 0.3s ease;
+  }
+  .sidebar,
+  body.nav-open .sidebar,
+  .nav-backdrop,
+  body.nav-open .nav-backdrop { transition-duration: 0.01s; }
+  .thumb:hover { transform: none; }
 }
 
 /* ---------- responsive ---------- */

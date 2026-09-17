@@ -5,6 +5,7 @@
    公開行だけを採用し、取得時間・body・件数・文字列長・補完並列数を制限する。
    ========================================================= */
 const fallbackData = require("../data/live-events.json");
+const { enrichLiveEvents, makeEventId } = require("../lib/live-key-visual.js");
 
 function parseCsv(csv) {
   const rows = [];
@@ -99,7 +100,7 @@ function toEvent(row, headers, index, usePublishedColumn) {
   const title = getCell(row, headers, ["title", "タイトル"]);
 
   return {
-    id: getCell(row, headers, ["id", "ID"]) || [date, venue, title, index].filter(Boolean).join("-"),
+    id: getCell(row, headers, ["id", "ID"]) || makeEventId(date, venue, title, 1, index),
     published: usePublishedColumn ? toBoolean(getCell(row, headers, ["published", "公開", "表示"])) : true,
     date,
     weekday: resolveWeekday(getCell(row, headers, ["weekday", "曜日"]), date),
@@ -109,6 +110,12 @@ function toEvent(row, headers, index, usePublishedColumn) {
     ticketUrl: getCell(row, headers, ["ticketUrl", "ticket", "チケットURL", "予約URL"]),
     tweetUrl: getCell(row, headers, ["tweetUrl", "tweet", "ツイートURL", "告知ツイートURL"]),
     note: getCell(row, headers, ["note", "備考", "メモ"]),
+    keyVisualUrl: getCell(row, headers, [
+      "keyVisualUrl",
+      "キービジュアルURL",
+      "キービジュアルURL(任意)",
+      "キービジュアルURL（任意）",
+    ]),
   };
 }
 
@@ -118,7 +125,8 @@ const FX_HOST = "https://api.fxtwitter.com";
 const TWEET_URL_RE =
   /^https:\/\/(?:www\.)?(?:twitter\.com|x\.com)\/([A-Za-z0-9_]{1,15})\/status\/(\d+)(?:[/?#].*)?$/i;
 const IMAGE_HOST_PREFIX = "https://pbs.twimg.com/";
-const FETCH_TIMEOUT_MS = 6000;
+const FETCH_TIMEOUT_MS = 2500;
+const API_MAX_EVENTS = 8;
 const MAX_REMOTE_BODY_BYTES = 512 * 1024;
 const MAX_FEED_EVENTS = 1000;
 const MAX_FEED_STRING_LENGTH = 8192;
@@ -265,34 +273,21 @@ async function fetchTweetEmbed(tweetUrl) {
   }
 }
 
-async function enrichEvents(events) {
-  const results = new Array(events.length);
-  let nextIndex = 0;
+async function enrichEvents(events, previousEvents = fallbackData.events) {
+  // Announcement and key visual requests share the hardening budget.
+  // Duplicate posts are memoized by the library before this fetcher runs.
   let remainingEnrichmentSlots = MAX_TWEET_ENRICH_EVENTS;
-  const workers = Array.from(
-    { length: Math.min(MAX_TWEET_ENRICH_CONCURRENCY, events.length) },
-    async () => {
-      while (true) {
-        const index = nextIndex;
-        nextIndex += 1;
-        if (index >= events.length) return;
-        const event = events[index];
-        if (!event.tweetUrl || event.tweetEmbed) {
-          results[index] = event;
-          continue;
-        }
-        if (remainingEnrichmentSlots <= 0) {
-          results[index] = event;
-          continue;
-        }
-        remainingEnrichmentSlots -= 1;
-        const tweetEmbed = await fetchTweetEmbed(event.tweetUrl);
-        results[index] = tweetEmbed ? { ...event, tweetEmbed } : event;
-      }
+  const boundedFetcher = async (url) => {
+    if (!TWEET_URL_RE.test(String(url || "").trim()) || remainingEnrichmentSlots <= 0) {
+      return null;
     }
-  );
-  await Promise.all(workers);
-  return results;
+    remainingEnrichmentSlots -= 1;
+    return fetchTweetEmbed(url);
+  };
+  return enrichLiveEvents(events, previousEvents, boundedFetcher, {
+    maxEvents: API_MAX_EVENTS,
+    concurrency: MAX_TWEET_ENRICH_CONCURRENCY,
+  });
 }
 
 const ALLOWED_FEED_EVENT_FIELDS = new Set([
