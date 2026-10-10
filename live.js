@@ -79,6 +79,10 @@
 
   function createItem(event, isPast, showEmbed) {
     const item = el("li", "live-item" + (isPast ? " is-past" : ""));
+    const visual = event.keyVisual && event.keyVisual.imageUrl ? event.keyVisual : event.tweetEmbed;
+    const hasEmbed = showEmbed && !isPast && Boolean(visual && visual.imageUrl);
+    const announcementUrl = event.tweetUrl || (event.tweetEmbed && event.tweetEmbed.url);
+    const detailText = event.detail || (showEmbed && !isPast && event.tweetEmbed && event.tweetEmbed.text);
 
     const body = el("div", "live-item__body");
 
@@ -94,17 +98,19 @@
     // 本文
     const info = el("div", "live-info");
     info.appendChild(el("h3", "live-title", event.title || "未定"));
-    const detail = [event.venue, event.detail].filter(Boolean).join(" / ");
-    if (detail) info.appendChild(el("p", "live-meta", detail));
-    if (event.note) info.appendChild(el("p", "live-note", event.note));
+    if (!hasEmbed) {
+      const detail = [event.venue, detailText].filter(Boolean).join(" / ");
+      if (detail) info.appendChild(el("p", "live-meta", detail));
+      if (event.note) info.appendChild(el("p", "live-note", event.note));
+    }
 
     // アクション
     const actions = el("div", "live-actions");
     if (event.ticketUrl) {
       actions.appendChild(externalLink(event.ticketUrl, "Ticket", "live-btn live-btn--primary"));
     }
-    if (event.tweetUrl) {
-      actions.appendChild(externalLink(event.tweetUrl, "Info on X", "live-btn"));
+    if (!hasEmbed && announcementUrl) {
+      actions.appendChild(externalLink(announcementUrl, "Info on X", "live-btn"));
     }
 
     body.appendChild(date);
@@ -113,8 +119,7 @@
     item.appendChild(body);
 
     // 後発キービジュアルがあれば画像だけを優先し、本文・リンクは元の告知ツイートを保つ
-    const visual = event.keyVisual && event.keyVisual.imageUrl ? event.keyVisual : event.tweetEmbed;
-    if (showEmbed && !isPast && (visual || event.tweetEmbed)) {
+    if (hasEmbed) {
       const embed = el("div", "live-embed");
       if (visual && visual.imageUrl) {
         const img = document.createElement("img");
@@ -152,13 +157,20 @@
         embed.appendChild(img);
       }
       const textWrap = el("div");
-      if (event.tweetEmbed && event.tweetEmbed.text) {
-        textWrap.appendChild(el("p", "live-embed__text", event.tweetEmbed.text));
+      // シートの会場・詳細を一度だけ表示し、詳細がないときだけ告知本文を補う。
+      if (event.venue) {
+        textWrap.appendChild(el("p", "live-embed__text", event.venue));
       }
-      if (event.tweetEmbed && event.tweetEmbed.url) {
-        textWrap.appendChild(externalLink(event.tweetEmbed.url, "View on X", "live-embed__link"));
+      if (detailText) {
+        textWrap.appendChild(el("p", "live-embed__text", detailText));
       }
-      embed.appendChild(textWrap);
+      if (event.note) {
+        textWrap.appendChild(el("p", "live-note", event.note));
+      }
+      if (announcementUrl) {
+        textWrap.appendChild(externalLink(announcementUrl, "View on X", "live-embed__link"));
+      }
+      if (textWrap.childNodes.length) embed.appendChild(textWrap);
       item.appendChild(embed);
     }
 
